@@ -1,6 +1,9 @@
+require 'csv'
+require 'fileutils'
 require 'json'
 require 'set'
 
+require 'fastcsv'
 require 'open-uri/cached'
 require 'pupa'
 
@@ -12,8 +15,10 @@ def logger
   @logger = Pupa::Logger.new('archive')
 end
 
-desc 'Downloads CSVs of facilities from EPA ECHO Facility Search'
-task :facilities do
+desc 'Downloads CSV files of facilities from EPA ECHO Facility Search'
+task :facility_list do
+  FileUtils.mkdir('downloads')
+
   consts = {}
 
   # Get the column IDs, which populate the inputs' values in the "Customize
@@ -90,7 +95,7 @@ task :facilities do
 
           basename = [:p_st, :s, :p_act].map{|parameter| parameters[parameter]}.compact.join('-')
           
-          File.open("#{basename}.csv", 'w') do |f|
+          File.open(File.join('downloads', "#{basename}.csv"), 'w') do |f|
             f.write(response.body)
           end
         end
@@ -112,5 +117,35 @@ task :facilities do
     }
 
     post(parameters, options, consts)
+  end
+end
+
+def facility_ids
+  Pupa::Processor::Yielder.new do
+    Dir[File.join('downloads', '*.csv')].each do |csv|
+      print '.'
+      FastCSV.foreach(csv, encoding: 'iso-8859-1', headers: true) do |row|
+        id = row['registry_id'] || row.fetch('pwsid') # "pwsid" for "sdwa" ("Drinking Water")
+        Fiber.yield(id)
+      end
+    end
+  end
+end
+
+desc 'Create a file of URLS to JSON files of detailed facility reports from EPA ECHO Facility Search'
+task :facility_detail_urls do
+  File.open('detailed_facility_report_urls.txt', 'w') do |f|
+    facility_ids.to_enum.each do |id|
+      f.write("https://echo.epa.gov/app/proxy/proxy.php?s=dfr&p_id=#{id}\n")
+    end
+  end
+end
+
+desc 'Downloads JSON files of detailed facility reports from EPA ECHO Facility Search'
+task :facility_details do
+  facility_ids.to_enum.each do |id|
+    File.open(File.join('downloads', "#{id}.json"), 'w') do |f|
+      f.write(open("https://echo.epa.gov/app/proxy/proxy.php?s=dfr&p_id=#{id}").read)
+    end
   end
 end
