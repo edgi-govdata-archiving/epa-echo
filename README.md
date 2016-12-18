@@ -1,22 +1,40 @@
-# EPA ECHO Scrapers
+# Environment Protection Agency (EPA) Enforcement and Compliance History Online (ECHO) Database Scrapers
 
 Scrapes some data from https://echo.epa.gov/
+
+**Note:** Some or all of this data may already be available as bulk downloads at https://echo.epa.gov/tools/data-downloads#downloads
 
     bundle
     bundle exec rake --tasks
 
 ## Scrapers
 
-Downloads the CSV data made available from [Facility Search Results](https://echo.epa.gov/facilities/facility-search) via its "Download CSV File" button.
+This command downloads the CSV data made available from [Facility Search Results](https://echo.epa.gov/facilities/facility-search) via its "Download CSV File" button.
 
     bundle exec rake facility_list
 
-Downloads the JSON data made available on each Detailed Facility Report, linked from [Facility Search Results](https://echo.epa.gov/facilities/facility-search).
+The CSV files in the `downloads/` directory are named after the parameters used in the queries that generate them and follow the pattern `XX-DDDDD.csv`, where `XX` is the "State" parameter value and `DDDDD` is the "State" parameter value.
 
-    bundle exec rake facility_details
+These commands create a file with the URLs to the JSON data for:
 
-Create a file with the URLs to the JSON data:
+* Detailed Facility Reports:
 
-    bundle exec rake facility_detail_urls
+    bundle exec rake detailed_facility_report_urls
+
+* Air Pollutant Reports:
+
+    bundle exec rake air_pollutant_report_urls
+
+* Civil Enforcement Case Reports:
+
+    bundle exec rake civil_enforcement_case_report_urls
+
+* Effluent Charts
+
+    bundle exec rake effluent_chart_urls
+
+* Discharge Monitoring Reports
+
+    bundle exec rake discharge_monitoring_report_urls
 
 Copyright (c) 2016 James McKinney, released under the MIT license
