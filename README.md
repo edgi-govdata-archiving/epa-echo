@@ -9,11 +9,11 @@ Scrapes some data from https://echo.epa.gov/
 
 ## Scrapers
 
-This command downloads the CSV data made available from [Facility Search Results](https://echo.epa.gov/facilities/facility-search) via its "Download CSV File" button.
+This command downloads the CSV data made available at [Facility Search Results](https://echo.epa.gov/facilities/facility-search) via its "Download CSV File" button.
 
     bundle exec rake facility_list
 
-The CSV files in the `downloads/` directory are named after the parameters used in the queries that generate them and follow the pattern `XX-DDDDD.csv`, where `XX` is the "State" parameter value and `DDDDD` is the "County" parameter value.
+The CSV files created in the `downloads/` directory are named after the parameters used in the queries that generate them and follow the pattern `XX-DDDDD.csv`, where `XX` is the "State" parameter value and `DDDDD` is the "County" parameter value.
 
 These commands create a file with the URLs to the JSON data for:
 
